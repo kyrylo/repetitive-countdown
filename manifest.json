@@ -1,0 +1,16 @@
+{
+  "name": "Repetitive Timer",
+  "version": "0.1",
+  "manifest_version": 2,
+  "description": "It's just a timer.",
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "notifications"
+  ],
+  "background": {
+    "scripts": ["background.js"]
+  }
+}
