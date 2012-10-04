@@ -1,8 +1,8 @@
 {
-  "name": "Repetitive Timer",
+  "name": "Repetitive Countdown",
   "version": "0.1",
   "manifest_version": 2,
-  "description": "It's just a timer.",
+  "description": "It's just an endless timer.",
   "browser_action": {
     "default_icon": "icon.png",
     "default_popup": "popup.html"
@@ -11,6 +11,6 @@
     "notifications"
   ],
   "background": {
-    "scripts": ["background.js"]
+    "page": "background.html"
   }
 }

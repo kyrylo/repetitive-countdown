@@ -1,3 +1,9 @@
+var settingsAreOpened = false;
+
+// Save default timer values to localStorage.
+localStorage['timer-mins'] = localStorage['timer-mins'] || 1;
+localStorage['timeout-mins'] = localStorage["timeout-mins"] || 1;
+
 document.addEventListener('DOMContentLoaded', function() {
 	document.querySelector('#settings-btn').addEventListener('click', toggleSettings);
 	document.querySelector('#timer-btn').addEventListener('click', toggleTimerSwitch);
@@ -6,37 +12,50 @@ document.addEventListener('DOMContentLoaded', function() {
 	document.querySelector('#save-settings').addEventListener('click', saveSettings);
 	document.querySelector('body').addEventListener('contextmenu', function(){ event.preventDefault(); }, false);
 
-	main();
-});
-
-/**
- * Sets default parameters.
- */
-function main()
-{
-	settingsAreOpened = false;
-	timerIsRunning = false;
-
-	localStorage['timer-mins'] = localStorage['timer-mins'] || 0;
-	localStorage['timeout-mins'] = localStorage["timeout-mins"] || 0;
-
-	sound = document.getElementById('timer-sound');
+	// Shortcuts.
 	minutes = document.getElementById('minutes');
 	settings = document.getElementById("settings");
 	settingsTimer = document.getElementById('timer-mins');
 	settingsTimeout = document.getElementById('timeout-mins');
 
-	updateSettings();
-	updateTimer(localStorage['timer-mins']);
-}
+	main();
+});
 
-function updateTimer(milliseconds)
+function main()
 {
-	var mins = millisecondsToMinutes(milliseconds);
-	minutes.innerHTML = mins;
+	setupPort();
+	initSettings();
+	initTimer();
 }
 
-function updateSettings()
+/**
+ * Sets up a port that is used to communicate with background process via
+ * messages. Also, records the fact of the first run of the extension.
+ */
+function setupPort()
+{
+	port = chrome.extension.connect({ name: 'repetitive timer' });
+	port.onMessage.addListener(function(msg) {
+		if (msg.firstRun == false)
+		{
+			firstRun = false;
+		}
+		if (time = msg.updateTimer)
+		{
+			updateTimer(time);
+		}
+	});
+
+	// Send a message, which notifies background.js that setup was
+	// successful. background.js will respond with another message that will
+	// cause changing the `firstRun` variable to `false`.
+	port.postMessage({ setup: true });
+}
+
+/**
+ * Initializes settings. Takes data from `localStorage` to set default values.
+ */
+function initSettings()
 {
 	var timerMinutes = millisecondsToMinutes(localStorage['timer-mins']);
 	var timeoutMinutes = millisecondsToMinutes(localStorage['timeout-mins']);
@@ -45,18 +64,64 @@ function updateSettings()
 	settingsTimeout.value = timeoutMinutes;
 }
 
-function toggleTimerSwitch()
+/**
+ * Initializes timer unless it's running, else just updates the timer indicator
+ * with default value.
+ */
+function initTimer()
 {
-	if (timerIsRunning)
+	if (!timerIsRunning())
 	{
-		countdownStop();
+		updateTimer(localStorage['timer-mins']);
 	}
 	else
 	{
-		countdownStart();
+		updateTimer(timeNow());
 	}
+}
 
-	timerIsRunning = !timerIsRunning;
+/**
+ * @return {Number} current time of the active timer (in milliseconds). If the
+ *   timer is inactive returns `undefined` (probably that is bad, though).
+ */
+function timeNow()
+{
+	return chrome.extension.getBackgroundPage().timeNow;
+}
+
+/**
+ * @return {Boolean} whether the timer is currently running
+ */
+function timerIsRunning()
+{
+	return chrome.extension.getBackgroundPage().timerIsRunning;
+}
+
+/**
+ * Updates an indicator (in the popup.html).
+ * @param {Number} milliseconds The number of milliseconds, which will be
+ *   converted to minutes and used as a new value of the indicator.
+ */
+function updateTimer(milliseconds)
+{
+	var mins = millisecondsToMinutes(milliseconds);
+	minutes.innerHTML = mins;
+}
+
+/**
+ * The timer dispatcher. Decides whether to stop or start a countdown and sends
+ * appropriate message to the background process.
+ */
+function toggleTimerSwitch()
+{
+	if (timerIsRunning())
+	{
+		port.postMessage({ countdownStop: true });
+	}
+	else
+	{
+		port.postMessage({ countdownStart: true });
+	}
 }
 
 /**
@@ -110,63 +175,6 @@ function hideSettings()
 }
 
 /**
- * Starts an endless countdown loop. After the first countdown (main one) it
- * will launch another countdown, which is a timeout. And then all over again.
- * Yields timerIntervalId, which can be used for the countdown stoppage.
- */
-function countdownStart()
-{
-	var initTime = localStorage['timer-mins'];
-	var startTime = new Date().getTime();
-	var timeout = true;
-
-	timerIntervalId = setInterval(function(){
-		var timeNow = initTime - (new Date().getTime() - startTime);
-
-		if (timeNow <= 0)
-		{
-			startTime = new Date().getTime();
-
-			if (timeout)
-			{
-				initTime = localStorage['timeout-mins'];
-				playSound('timeout.ogg');
-			}
-			else
-			{
-				initTime = localStorage['timer-mins'];
-				playSound('timer.ogg');
-			}
-
-			timeout = !timeout;
-		}
-		else
-		{
-			updateTimer(timeNow);
-		}
-	}, 1000);
-}
-
-/**
- * Stops the countdown loop.
- */
-function countdownStop()
-{
-	clearInterval(timerIntervalId);
-	minutes.innerHTML = millisecondsToMinutes(localStorage['timer-mins']);
-}
-
-/**
- * Sets a sound from path to sound object and plays it.
- * @param {String} path The path to the sound to be played
- */
-function playSound(path)
-{
-	sound.src = 'sounds/' + path;
-	sound.play();
-}
-
-/**
  * Converts milliseconds to minutes (1000 milliseconds = 1 second).
  * @param {Number} milliseconds
  * @return {Number} Rounded number of minutes in given milliseconds
@@ -214,6 +222,13 @@ function saveSettings()
 	localStorage['timeout-mins'] = timeoutMinutes;
 }
 
+/**
+ * Arranges the given number to the interval [1, 1440]. The maximum number is
+ * 1440 because a day consists of 1440 minutes, so the timer can ring every
+ * 24 hours.
+ * @param {Number} number
+ * @return {Number} the arranged number
+ */
 function arrangeToRange(number)
 {
 	var maxLimit = 1440;
