@@ -6,7 +6,6 @@ var timeNow;
 // Represents the state of the coundown.
 var timerIsRunning = false;
 
-
 chrome.extension.onConnect.addListener(function(port) {
 	console.assert(port.name == 'repetitive timer');
 

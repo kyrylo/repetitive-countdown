@@ -1,8 +1,8 @@
 var settingsAreOpened = false;
 
 // Save default timer values to localStorage.
-localStorage['timer-mins'] = localStorage['timer-mins'] || 1;
-localStorage['timeout-mins'] = localStorage["timeout-mins"] || 1;
+localStorage['timer-mins'] = localStorage['timer-mins'] || minutesToMilliseconds(75);
+localStorage['timeout-mins'] = localStorage["timeout-mins"] || minutesToMilliseconds(6);
 
 document.addEventListener('DOMContentLoaded', function() {
 	document.querySelector('#settings-btn').addEventListener('click', toggleSettings);
@@ -105,7 +105,7 @@ function timerIsRunning()
 function updateTimer(milliseconds)
 {
 	var mins = millisecondsToMinutes(milliseconds);
-	minutes.innerHTML = mins;
+	minutes.textContent = mins;
 }
 
 /**
