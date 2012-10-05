@@ -18,6 +18,7 @@
       #content
       {
         -webkit-user-select: none;
+        float: left;
         text-align: center;
         z-index: 1;
       }
@@ -72,9 +73,18 @@
           -webkit-box-shadow: inset 0 0px 0px rgb(110,110,110), inset 0 0px 0px rgb(110,110,110);
       }
 
+      /* /!\ Bollocks Solution Warning /!\
+         Visually removes yellow focus from the timer button. I can't figure out
+         how to remove autofocus with help of JS, so we can focus on the button
+         later. */
+      #timer-btn:focus
+      {
+        outline: none;
+      }
+
       #settings-btn
       {
-        position: absolute;
+        float: right;
         right: 0;
         bottom: 0;
       }
@@ -90,9 +100,21 @@
         font-family: Tahoma, Verdana, Arial, sans-serif;
       }
 
-      #settings input
+      #settings-content
       {
-        width: 80px;
+        padding: 3px 4px;
+      }
+
+      #settings input[type=number]
+      {
+        width: 45px;
+      }
+
+      #save-settings
+      {
+        position: absolute;
+        bottom: 0;
+        right: 0;
       }
     </style>
 
@@ -102,11 +124,12 @@
   <body>
 
     <div id="settings" style="top: -100%; display: none;">
-      <h3>Settings</h3>
-      Ring every <input type="number" min="1" max="1440" id="timer-mins" /> minutes.<br />
-      With timeout for <input type="number" min="1" max="1440" id="timeout-mins" /> minutes.<br />
-      Play <input type="file" /> sound.<br />
-      <button id="save-settings">Save</button>
+        <div id="settings-content">
+          Ring every <input autofocus type="number" min="1" max="1440" id="timer-mins" /> minutes.<br />
+          Timeout for <input type="number" min="1" max="1440" id="timeout-mins" /> minutes.<br />
+          Run when a browser starts <input type="checkbox" /><br />
+          <button id="save-settings">Save</button>
+      </div>
     </div>
 
     <div id="content">
