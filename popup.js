@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	settings = document.getElementById("settings");
 	settingsTimer = document.getElementById('timer-mins');
 	settingsTimeout = document.getElementById('timeout-mins');
+	autostart = document.getElementById('autostart');
 
 	main();
 });
@@ -24,7 +25,6 @@ document.addEventListener('DOMContentLoaded', function() {
 function main()
 {
 	setupPort();
-	initSettings();
 	initTimer();
 }
 
@@ -36,20 +36,11 @@ function setupPort()
 {
 	port = chrome.extension.connect({ name: 'repetitive timer' });
 	port.onMessage.addListener(function(msg) {
-		if (msg.firstRun == false)
-		{
-			firstRun = false;
-		}
 		if (time = msg.updateTimer)
 		{
 			updateTimer(time);
 		}
 	});
-
-	// Send a message, which notifies background.js that setup was
-	// successful. background.js will respond with another message that will
-	// cause changing the `firstRun` variable to `false`.
-	port.postMessage({ setup: true });
 }
 
 /**
@@ -131,11 +122,12 @@ function toggleSettings()
 {
 	if (settingsAreOpened)
 	{
-		settingsIntervalId = setInterval(function(){ hideSettings(); }, 1);
+		settingsIntervalId = setInterval(hideSettings, 1);
 	}
 	else
 	{
-		settingsIntervalId = setInterval(function(){ showSettings(); }, 1);
+		initSettings();
+		settingsIntervalId = setInterval(showSettings, 1);
 	}
 
 	settingsAreOpened = !settingsAreOpened;

@@ -10,11 +10,7 @@ chrome.extension.onConnect.addListener(function(port) {
 	console.assert(port.name == 'repetitive timer');
 
 	port.onMessage.addListener(function(msg){
-		if (msg.setup)
-		{
-			port.postMessage({ firstRun: false });
-		}
-		else if (msg.countdownStop)
+		if (msg.countdownStop)
 		{
 			countdownStop(port);
 		}
