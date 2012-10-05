@@ -53,6 +53,7 @@ function initSettings()
 
 	settingsTimer.value = timerMinutes;
 	settingsTimeout.value = timeoutMinutes;
+	autostart.checked = !!parseInt(localStorage['autostart']);
 }
 
 /**
@@ -209,6 +210,15 @@ function saveSettings()
 
 	var timerMinutes = minutesToMilliseconds(arrangeToRange(rawTimerMinutes));
 	var timeoutMinutes = minutesToMilliseconds(arrangeToRange(rawTimeoutMinutes));
+
+	if (autostart.checked)
+	{
+		localStorage['autostart'] = 1;
+	}
+	else
+	{
+		localStorage['autostart'] = 0;
+	}
 
 	localStorage['timer-mins'] = timerMinutes;
 	localStorage['timeout-mins'] = timeoutMinutes;

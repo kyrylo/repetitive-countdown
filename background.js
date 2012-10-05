@@ -6,6 +6,9 @@ var timeNow;
 // Represents the state of the coundown.
 var timerIsRunning = false;
 
+var autostart = parseInt(localStorage['autostart'] || 0);
+var port;
+
 chrome.extension.onConnect.addListener(function(port) {
 	console.assert(port.name == 'repetitive timer');
 
@@ -19,10 +22,15 @@ chrome.extension.onConnect.addListener(function(port) {
 			countdownStart(port);
 		}
 	});
+
+	// Expose port to the rest of the program.
+	port = this.port;
 });
 
 document.addEventListener('DOMContentLoaded', function() {
 	sound = document.getElementById('timer-sound');
+
+	if (autostart) { countdownStart(port); }
 });
 
 /**
