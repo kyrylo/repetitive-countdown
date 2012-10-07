@@ -1,18 +1,14 @@
-// Used by a countdown and represends current time, if a timer is
-// active. I expose it because I need to know this information in my
-// `popup.html`.
+// Used by a countdown and represends current time, if a timer is active. I
+// expose it because I need to know this information in my `popup.html`.
 var timeNow;
 
 // Represents the state of the coundown.
 var timerIsRunning = false;
 
-var autostart = parseInt(localStorage['autostart'] || 0);
-var port;
-
 chrome.extension.onConnect.addListener(function(port) {
 	console.assert(port.name == 'repetitive timer');
 
-	port.onMessage.addListener(function(msg){
+	port.onMessage.addListener(function(msg) {
 		if (msg.countdownStop)
 		{
 			countdownStop(port);
@@ -22,15 +18,10 @@ chrome.extension.onConnect.addListener(function(port) {
 			countdownStart(port);
 		}
 	});
-
-	// Expose port to the rest of the program.
-	port = this.port;
 });
 
 document.addEventListener('DOMContentLoaded', function() {
 	sound = document.getElementById('timer-sound');
-
-	if (autostart) { countdownStart(port); }
 });
 
 /**

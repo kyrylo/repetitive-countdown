@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	settings = document.getElementById("settings");
 	settingsTimer = document.getElementById('timer-mins');
 	settingsTimeout = document.getElementById('timeout-mins');
-	autostart = document.getElementById('autostart');
 
 	main();
 });
@@ -96,8 +95,7 @@ function timerIsRunning()
  */
 function updateTimer(milliseconds)
 {
-	var mins = millisecondsToMinutes(milliseconds);
-	minutes.textContent = mins;
+	minutes.textContent =  millisecondsToMinutes(milliseconds);
 }
 
 /**
@@ -168,6 +166,26 @@ function hideSettings()
 }
 
 /**
+ * Saves current user settings defined in the "Settings" slider.
+ */
+function saveSettings()
+{
+	var rawTimerMinutes = parseInt(settingsTimer.value);
+	var rawTimeoutMinutes = parseInt(settingsTimeout.value);
+
+	var timerMinutes = minutesToMilliseconds(arrangeToRange(rawTimerMinutes));
+	var timeoutMinutes = minutesToMilliseconds(arrangeToRange(rawTimeoutMinutes));
+
+	if (!timerIsRunning())
+	{
+		updateTimer(timerMinutes);
+	}
+
+	localStorage['timer-mins'] = timerMinutes;
+	localStorage['timeout-mins'] = timeoutMinutes;
+}
+
+/**
  * Converts milliseconds to minutes (1000 milliseconds = 1 second).
  * @param {Number} milliseconds
  * @return {Number} Rounded number of minutes in given milliseconds
@@ -198,30 +216,6 @@ function validateNumber(event)
 	{
 		event.preventDefault();
 	}
-}
-
-/**
- * Saves current user settings defined in the "Settings" slider.
- */
-function saveSettings()
-{
-	var rawTimerMinutes = parseInt(settingsTimer.value);
-	var rawTimeoutMinutes = parseInt(settingsTimeout.value);
-
-	var timerMinutes = minutesToMilliseconds(arrangeToRange(rawTimerMinutes));
-	var timeoutMinutes = minutesToMilliseconds(arrangeToRange(rawTimeoutMinutes));
-
-	if (autostart.checked)
-	{
-		localStorage['autostart'] = 1;
-	}
-	else
-	{
-		localStorage['autostart'] = 0;
-	}
-
-	localStorage['timer-mins'] = timerMinutes;
-	localStorage['timeout-mins'] = timeoutMinutes;
 }
 
 /**
