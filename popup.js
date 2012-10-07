@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	}, false);
 	document.querySelector('#timeout-mins').addEventListener('keypress', function() {
 		validateNumber(event);
-		validateLength(event);
+		validateLength(event, this);
 	}, false);
 
 	// Shortcuts.
