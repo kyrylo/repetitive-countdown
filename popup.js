@@ -5,18 +5,12 @@ localStorage['timer-mins'] = localStorage['timer-mins'] || minutesToMilliseconds
 localStorage['timeout-mins'] = localStorage["timeout-mins"] || minutesToMilliseconds(6);
 
 document.addEventListener('DOMContentLoaded', function() {
+	document.querySelector('#timer-mins').addEventListener('keypress', function(){ validateNumber(event); }, false);
+	document.querySelector('#timeout-mins').addEventListener('keypress', function(){ validateNumber(event); }, false);
 	document.querySelector('#settings-btn').addEventListener('click', toggleSettings);
 	document.querySelector('#timer-btn').addEventListener('click', toggleTimerSwitch);
 	document.querySelector('#save-settings').addEventListener('click', saveSettings);
 	document.querySelector('body').addEventListener('contextmenu', function(){ event.preventDefault(); }, false);
-	document.querySelector('#timer-mins').addEventListener('keypress', function() {
-		validateNumber(event);
-		validateLength(event, this);
-	}, false);
-	document.querySelector('#timeout-mins').addEventListener('keypress', function() {
-		validateNumber(event);
-		validateLength(event, this);
-	}, false);
 
 	// Shortcuts.
 	minutes = document.getElementById('minutes');
@@ -218,17 +212,6 @@ function validateNumber(event)
 	var charCode = (event.which) ? event.which : event.keyCode;
 
 	if (charCode > 31 && (charCode < 48 || charCode > 57))
-	{
-		event.preventDefault();
-	}
-}
-
-/**
- * Validates that a field has less than or equal to 4 characters.
- */
-function validateLength(event, field)
-{
-	if (field.value.length >= 4)
 	{
 		event.preventDefault();
 	}
