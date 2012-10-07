@@ -52,7 +52,6 @@ function initSettings()
 
 	settingsTimer.value = timerMinutes;
 	settingsTimeout.value = timeoutMinutes;
-	autostart.checked = !!parseInt(localStorage['autostart']);
 }
 
 /**
