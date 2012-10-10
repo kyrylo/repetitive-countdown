@@ -13,10 +13,22 @@ document.addEventListener('DOMContentLoaded', function() {
 	document.querySelector('body').addEventListener('contextmenu', function(){ event.preventDefault(); }, false);
 
 	// Shortcuts.
-	minutes = document.getElementById('minutes');
+	display = document.getElementById('display');
 	settings = document.getElementById("settings");
 	settingsTimer = document.getElementById('timer-mins');
 	settingsTimeout = document.getElementById('timeout-mins');
+
+	ctx = display.getContext('2d');
+	ctx.font = '62px Yeseva One';
+	ctx.textAlign = 'center';
+	ctx.textBaseline = 'middle';
+	ctx.fillStyle = '#FFFFFF';
+
+	// Get central point of the canvas.
+	ctxWidth = display.width;
+	ctxHeight = display.height;
+	xCenter = ctxWidth / 2;
+	yCenter = ctxHeight / 2;
 
 	main();
 });
@@ -63,6 +75,15 @@ function initTimer()
 	if (!timerIsRunning())
 	{
 		updateTimer(localStorage['timer-mins']);
+
+		// Fucking moronic hack for displaying minutes on the first
+		// start of the plugin. Read more here (canvas and custom font
+		// load issue):
+		// http://lists.w3.org/Archives/Public/www-style/2010Sep/0775.html
+		var t = setTimeout(function() {
+			updateTimer(localStorage['timer-mins']);
+			clearTimeout(t);
+		}, 100);
 	}
 	else
 	{
@@ -94,7 +115,8 @@ function timerIsRunning()
  */
 function updateTimer(milliseconds)
 {
-	minutes.textContent =  millisecondsToMinutes(milliseconds);
+	ctx.clearRect(0, 0, ctxWidth, ctxHeight);
+	ctx.fillText(millisecondsToMinutes(milliseconds), xCenter, yCenter);
 }
 
 /**

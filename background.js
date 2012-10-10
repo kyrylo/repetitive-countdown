@@ -54,12 +54,12 @@ function countdownStart(port)
 			if (timeout)
 			{
 				initTime = localStorage['timeout-mins'];
-				playSound('timeout.ogg');
+				playSound('timeout.wav');
 			}
 			else
 			{
 				initTime = localStorage['timer-mins'];
-				playSound('timer.ogg');
+				playSound('timer.wav');
 			}
 
 			timeout = !timeout;
