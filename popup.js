@@ -83,7 +83,7 @@ function initTimer()
 		var t = setTimeout(function() {
 			updateTimer(localStorage['timer-mins']);
 			clearTimeout(t);
-		}, 100);
+		}, 150);
 	}
 	else
 	{
