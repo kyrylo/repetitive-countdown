@@ -5,8 +5,10 @@ var timeNow;
 // Represents the state of the coundown.
 var timerIsRunning = false;
 
+var timeout;
+
 chrome.extension.onConnect.addListener(function(port) {
-	console.assert(port.name == 'repetitive timer');
+	console.assert(port.name == 'repetitive countdown');
 
 	port.onMessage.addListener(function(msg) {
 		if (msg.countdownStop)
@@ -39,13 +41,14 @@ function countdownStart(port)
 	var startTime = new Date().getTime();
 
 	// After the main countdown invoke the timeout stage.
-	var timeout = true;
+	timeout = true;
 
 	// Change timer state.
 	timerIsRunning = true;
 
 	timerIntervalId = setInterval(function() {
 		timeNow = initTime - (new Date().getTime() - startTime);
+		var popup_window = chrome.extension.getViews({"type":"popup"})[0]
 
 		if (timeNow <= 0)
 		{
@@ -62,11 +65,12 @@ function countdownStart(port)
 				playSound('timer.wav');
 			}
 
+			if (popup_window) { callUpdateLedLights(popup_window, timeout); }
 			timeout = !timeout;
 		}
 		else
 		{
-			callUpdateTimer(port, timeNow);
+			if (popup_window) { callUpdateTimer(popup_window, timeNow); }
 		}
 	}, 1000);
 }
@@ -93,12 +97,35 @@ function playSound(path)
 }
 
 /**
- * Sends a message to `popup.js` with time argument. The reciever (popup.js)
- * should call `updateTimer` function after that.
- * @param {PortImpl} port The port, which should be used for sending messages
+ * Updates `popup.html` with new value of the countdown.
+ * @param {Window} popup_window The popup window
  * @param {Number} time The time to be updated in popup.html
  */
-function callUpdateTimer(port, time)
+function callUpdateTimer(popup_window, time)
 {
-	port.postMessage({ updateTimer: time });
+	popup_window.updateTimer(time);
+}
+
+/**
+ * Updates led lights.
+ * @param {Window} popup_window The popup window
+ * @param {Number} timeout Whether it's timeout
+ */
+function callUpdateLedLights(popup_window, timeout)
+{
+	var ledTimer;
+	var ledTimeout;
+
+	if (timeout)
+	{
+		ledTimer = false;
+		ledTimeout = true;
+	}
+	else
+	{
+		ledTimer = true;
+		ledTimeout = false;
+	}
+
+	popup_window.updateLedLights({ledTimer: ledTimer, ledTimeout: ledTimeout});
 }

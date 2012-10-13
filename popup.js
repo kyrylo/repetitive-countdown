@@ -18,6 +18,25 @@ document.addEventListener('DOMContentLoaded', function() {
 	settingsTimer = document.getElementById('timer-mins');
 	settingsTimeout = document.getElementById('timeout-mins');
 
+	// Led indicators
+	ledTimerRed = document.getElementById('led-timer');
+	ledTimeoutBlue = document.getElementById('led-timeout');
+
+	main();
+});
+
+function main()
+{
+	initCanvas();
+	initLedLights();
+	setupPort();
+	initTimer();
+
+}
+
+function initCanvas()
+{
+
 	ctx = display.getContext('2d');
 	ctx.font = '62px Yeseva One';
 	ctx.textAlign = 'center';
@@ -30,13 +49,25 @@ document.addEventListener('DOMContentLoaded', function() {
 	xCenter = ctxWidth / 2;
 	yCenter = ctxHeight / 2;
 
-	main();
-});
+}
 
-function main()
+function initLedLights()
 {
-	setupPort();
-	initTimer();
+	if (timerIsRunning()) {
+		if (timeout())
+		{
+			updateLedLights({ ledTimer: true, ledTimeout: false });
+		}
+		else
+		{
+			updateLedLights({ ledTimer: false, ledTimeout: true });
+		}
+	}
+	else
+	{
+		updateLedLights({ ledTimer: false, ledTimeout: false });
+	}
+
 }
 
 /**
@@ -45,13 +76,32 @@ function main()
  */
 function setupPort()
 {
-	port = chrome.extension.connect({ name: 'repetitive timer' });
-	port.onMessage.addListener(function(msg) {
-		if (time = msg.updateTimer)
-		{
-			updateTimer(time);
-		}
-	});
+	port = chrome.extension.connect({ name: 'repetitive countdown' });
+}
+
+/**
+ * Switches CSS classes for the led lights.
+ * @param {Object} ledCommands
+ */
+function updateLedLights(ledCommands)
+{
+	if (ledCommands.ledTimer)
+	{
+		ledTimerRed.className = 'led-light led-timer-on';
+	}
+	else
+	{
+		ledTimerRed.className = 'led-light led-timer-off';
+	}
+
+	if (ledCommands.ledTimeout)
+	{
+		ledTimeoutBlue.className = 'led-light led-timeout-on';
+	}
+	else
+	{
+		ledTimeoutBlue.className = 'led-light led-timeout-off';
+	}
 }
 
 /**
@@ -109,6 +159,14 @@ function timerIsRunning()
 }
 
 /**
+ * @return {Boolean} whether the next stage is the timeout stage.
+ */
+function timeout()
+{
+	return chrome.extension.getBackgroundPage().timeout;
+}
+
+/**
  * Updates an indicator (in the popup.html).
  * @param {Number} milliseconds The number of milliseconds, which will be
  *   converted to minutes and used as a new value of the indicator.
@@ -128,10 +186,14 @@ function toggleTimerSwitch()
 	if (timerIsRunning())
 	{
 		port.postMessage({ countdownStop: true });
+		ledTimerRed.className = 'led-light led-timer-off';
+		ledTimeoutBlue.className = 'led-light led-timeout-off';
+
 	}
 	else
 	{
 		port.postMessage({ countdownStart: true });
+		ledTimerRed.className = 'led-light led-timer-on';
 	}
 }
 
