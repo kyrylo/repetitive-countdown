@@ -6,6 +6,7 @@ var timeNow;
 var timerIsRunning = false;
 
 var timeout;
+var popup_window;
 
 chrome.extension.onConnect.addListener(function(port) {
 	console.assert(port.name == 'repetitive countdown');
@@ -13,11 +14,11 @@ chrome.extension.onConnect.addListener(function(port) {
 	port.onMessage.addListener(function(msg) {
 		if (msg.countdownStop)
 		{
-			countdownStop(port);
+			countdownStop();
 		}
 		else if (msg.countdownStart)
 		{
-			countdownStart(port);
+			countdownStart();
 		}
 	});
 });
@@ -30,9 +31,8 @@ document.addEventListener('DOMContentLoaded', function() {
  * Starts an endless countdown loop. After the first countdown (main one) it
  * will launch another countdown, which is a timeout. And then all over again.
  * Yields timerIntervalId, which can be used for the countdown stoppage.
- * @param {PortImpl} port The port, which should be used for sending messages
  */
-function countdownStart(port)
+function countdownStart()
 {
 	// The main countdown.
 	var initTime = localStorage['timer-mins'];
@@ -43,12 +43,13 @@ function countdownStart(port)
 	// After the main countdown invoke the timeout stage.
 	timeout = true;
 
+	popup_window = chrome.extension.getViews({"type":"popup"})[0]
+
 	// Change timer state.
 	timerIsRunning = true;
 
 	timerIntervalId = setInterval(function() {
 		timeNow = initTime - (new Date().getTime() - startTime);
-		var popup_window = chrome.extension.getViews({"type":"popup"})[0]
 
 		if (timeNow <= 0)
 		{
@@ -77,13 +78,12 @@ function countdownStart(port)
 
 /**
  * Stops the countdown loop by using `timerIntervalId` handle.
- * @param {PortImpl} port The port, which should be used for sending messages
  */
-function countdownStop(port)
+function countdownStop()
 {
 	timerIsRunning = false;
 	clearInterval(timerIntervalId);
-	callUpdateTimer(port, localStorage['timer-mins']);
+	callUpdateTimer(popup_window, localStorage['timer-mins']);
 }
 
 /**
