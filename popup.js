@@ -36,19 +36,6 @@ function main()
 
 function initCanvas()
 {
-
-	ctx = display.getContext('2d');
-	ctx.font = '62px Yeseva One';
-	ctx.textAlign = 'center';
-	ctx.textBaseline = 'middle';
-	ctx.fillStyle = '#FFFFFF';
-
-	// Get central point of the canvas.
-	ctxWidth = display.width;
-	ctxHeight = display.height;
-	xCenter = ctxWidth / 2;
-	yCenter = ctxHeight / 2;
-
 }
 
 function initLedLights()
@@ -72,11 +59,17 @@ function initLedLights()
 
 /**
  * Sets up a port that is used to communicate with background process via
- * messages. Also, records the fact of the first run of the extension.
+ * messages.
  */
 function setupPort()
 {
 	port = chrome.extension.connect({ name: 'repetitive countdown' });
+	port.onMessage.addListener(function(msg) {
+		if (time = msg.updateTimer)
+		{
+			updateTimer(time);
+		}
+	});
 }
 
 /**
@@ -167,13 +160,31 @@ function timeout()
 }
 
 /**
- * Updates an indicator (in the popup.html).
+ * Updates the indicator (in the popup.html).
  * @param {Number} milliseconds The number of milliseconds, which will be
  *   converted to minutes and used as a new value of the indicator.
  */
 function updateTimer(milliseconds)
 {
+	ctx = display.getContext('2d');
+	ctx.globalCompositeOperation = 'source-out';
+	ctx.font = '62px Yeseva One';
+	ctx.textAlign = 'center';
+	ctx.textBaseline = 'middle';
+
+	// Get central point of the canvas.
+	ctxWidth = display.width;
+	ctxHeight = display.height;
+	xCenter = ctxWidth / 2;
+	yCenter = ctxHeight / 2;
+
+	var image = new Image();
+	image.src = 'images/display-bg.png';
+
+	ctx.fillStyle = ctx.createPattern(image, 'repeat');
 	ctx.clearRect(0, 0, ctxWidth, ctxHeight);
+	ctx.fillRect(0, 0, ctxWidth, ctxHeight);
+	ctx.globalCompositeOperation = 'destination-out';
 	ctx.fillText(millisecondsToMinutes(milliseconds), xCenter, yCenter);
 }
 
@@ -188,7 +199,6 @@ function toggleTimerSwitch()
 		port.postMessage({ countdownStop: true });
 		ledTimerRed.className = 'led-light led-timer-off';
 		ledTimeoutBlue.className = 'led-light led-timeout-off';
-
 	}
 	else
 	{
