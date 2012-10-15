@@ -1,5 +1,9 @@
 var settingsAreOpened = false;
 
+var topGradient = 5;
+var bottomGradient = 17;
+var gradientStep = 1.18;
+
 // Save default timer values to localStorage.
 localStorage['timer-mins'] = localStorage['timer-mins'] || minutesToMilliseconds(75);
 localStorage['timeout-mins'] = localStorage["timeout-mins"] || minutesToMilliseconds(6);
@@ -27,15 +31,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function main()
 {
-	initCanvas();
 	initLedLights();
 	setupPort();
 	initTimer();
+	updateCanvas();
 
 }
 
-function initCanvas()
+function updateCanvas()
 {
+	port.postMessage({ updateGradients: true });
 }
 
 function initLedLights()
@@ -185,6 +190,7 @@ function updateTimer(milliseconds)
 	ctx.clearRect(0, 0, ctxWidth, ctxHeight);
 	ctx.fillRect(0, 0, ctxWidth, ctxHeight);
 	ctx.globalCompositeOperation = 'destination-out';
+
 	ctx.fillText(millisecondsToMinutes(milliseconds), xCenter, yCenter);
 }
 
