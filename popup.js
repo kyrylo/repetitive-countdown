@@ -165,6 +165,11 @@ function timeout()
  */
 function updateTimer(milliseconds)
 {
+	// Avoid displaying zero when 1 minute left. If you set it to 60000,
+	// it will be displaying 2 instead of 1.
+	var milliseconds = parseInt(milliseconds) + 59999;
+
+	// Prepare the canvas object.
 	ctx = display.getContext('2d');
 	ctx.globalCompositeOperation = 'source-out';
 	ctx.font = '62px Yeseva One';
@@ -177,9 +182,9 @@ function updateTimer(milliseconds)
 	xCenter = ctxWidth / 2;
 	yCenter = ctxHeight / 2;
 
+	// Set nimble background.
 	var image = new Image();
 	image.src = 'images/display-bg.png';
-
 	ctx.fillStyle = ctx.createPattern(image, 'repeat');
 	ctx.clearRect(0, 0, ctxWidth, ctxHeight);
 	ctx.fillRect(0, 0, ctxWidth, ctxHeight);

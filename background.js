@@ -60,10 +60,10 @@ function countdownStart()
 	timerIsRunning = true;
 
 	timerIntervalId = setInterval(function() {
-		timeNow = initTime - (new Date().getTime() - startTime) + 60000;
+		timeNow = initTime - (new Date().getTime() - startTime);
 		popup_window = getPopup();
 
-		if (timeNow <= 60000)
+		if (timeNow <= 0)
 		{
 			startTime = new Date().getTime();
 
@@ -77,6 +77,8 @@ function countdownStart()
 				initTime = localStorage['timer-mins'];
 				playSound('timer.wav');
 			}
+
+			resetGradients();
 
 			if (popup_window) {
 				var ledTimer;
@@ -98,18 +100,17 @@ function countdownStart()
 					ledTimeout: ledTimeout
 				});
 			}
+
 			timeout = !timeout;
 		}
 		else
 		{
-			if (((Math.floor(millisecondsToSeconds(timeNow)) % 60) == 0))
+			currentTopGradient += gradientStep;
+			currentBottomGradient += gradientStep;
+
+			if (Math.floor(millisecondsToSeconds(timeNow)) % 60 == 0)
 			{
 				resetGradients();
-			}
-			else
-			{
-				currentTopGradient += gradientStep;
-				currentBottomGradient += gradientStep;
 			}
 
 			if (popup_window)
@@ -167,17 +168,17 @@ function resetGradients()
 		currentTopGradient -= gradientStep;
 		currentBottomGradient -= gradientStep;
 
-		popup_window = getPopup();
-		if (popup_window)
-		{
-			updateGradients(popup_window, currentTopGradient, currentBottomGradient);
-		}
-
 		if (currentTopGradient <= initTopGradient)
 		{
 			currentTopGradient = initTopGradient;
 			currentBottomGradient = initBottomGradient;
 			clearInterval(t);
+		}
+
+		popup_window = getPopup();
+		if (popup_window)
+		{
+			updateGradients(popup_window, currentTopGradient, currentBottomGradient);
 		}
 	}, 10);
 }
