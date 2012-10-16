@@ -1,9 +1,5 @@
 var settingsAreOpened = false;
 
-var topGradient = 5;
-var bottomGradient = 17;
-var gradientStep = 1.18;
-
 // Save default timer values to localStorage.
 localStorage['timer-mins'] = localStorage['timer-mins'] || minutesToMilliseconds(75);
 localStorage['timeout-mins'] = localStorage["timeout-mins"] || minutesToMilliseconds(6);
@@ -35,7 +31,6 @@ function main()
 	setupPort();
 	initTimer();
 	updateCanvas();
-
 }
 
 function updateCanvas()
@@ -59,7 +54,6 @@ function initLedLights()
 	{
 		updateLedLights({ ledTimer: false, ledTimeout: false });
 	}
-
 }
 
 /**

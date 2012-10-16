@@ -8,12 +8,12 @@ var timerIsRunning = false;
 var timeout;
 var popup_window;
 
-var initTopGradient = 5;
-var initBottomGradient = 17;
+var initTopGradient = 12;
+var initBottomGradient = 22;
 
 var currentTopGradient = initTopGradient;
 var currentBottomGradient = initBottomGradient;
-var gradientStep = 1.18;
+var gradientStep = 1.08;
 
 chrome.extension.onConnect.addListener(function(port) {
 	console.assert(port.name == 'repetitive countdown');
@@ -60,10 +60,10 @@ function countdownStart()
 	timerIsRunning = true;
 
 	timerIntervalId = setInterval(function() {
-		timeNow = initTime - (new Date().getTime() - startTime);
+		timeNow = initTime - (new Date().getTime() - startTime) + 60000;
 		popup_window = getPopup();
 
-		if (timeNow <= 0)
+		if (timeNow <= 60000)
 		{
 			startTime = new Date().getTime();
 
@@ -112,7 +112,8 @@ function countdownStart()
 				currentBottomGradient += gradientStep;
 			}
 
-			if (popup_window) {
+			if (popup_window)
+			{
 				popup_window.updateTimer(timeNow);
 				updateGradients(popup_window, currentTopGradient, currentBottomGradient);
 			}
@@ -127,7 +128,8 @@ function countdownStop()
 {
 	timerIsRunning = false;
 	clearInterval(timerIntervalId);
-	popup_window = getPopup()
+	popup_window = getPopup();
+
 	if (popup_window)
 	{
 		resetGradients();
@@ -156,20 +158,46 @@ function millisecondsToSeconds(milliseconds)
 }
 
 /**
- * Resets current gradients to default values.
+ * Smoothly resets current gradients to default values (also plays a neat visual
+ * effect).
  */
 function resetGradients()
 {
-	currentTopGradient = initTopGradient;
-	currentBottomGradient = initBottomGradient;
+	var t = setInterval(function() {
+		currentTopGradient -= gradientStep;
+		currentBottomGradient -= gradientStep;
+
+		popup_window = getPopup();
+		if (popup_window)
+		{
+			updateGradients(popup_window, currentTopGradient, currentBottomGradient);
+		}
+
+		if (currentTopGradient <= initTopGradient)
+		{
+			currentTopGradient = initTopGradient;
+			currentBottomGradient = initBottomGradient;
+			clearInterval(t);
+		}
+	}, 10);
 }
 
+/**
+ * Updates gradients on the given window (well, it should be the popup window
+ * :P).
+ * @param {Window} window
+ * @param {Number} topGradient
+ * @param {Number} bottomGradient
+ */
 function updateGradients(window, topGradient, bottomGradient)
 {
-	window.display.style.background = "url('images/display-bg-alpha.png'), -webkit-linear-gradient(top, #FFFFFF " + topGradient + "%, #2A80A8 " + bottomGradient + "%)";
+	window.display.style.background = "url('images/display-bg-alpha.png'), -webkit-linear-gradient(top, #646262 " + topGradient + "%, #FFFFFF " + bottomGradient + "%)";
 }
 
+/**
+ * @return {Window, undefined} undefined if the popup window is closed.
+ */
 function getPopup()
 {
-	return chrome.extension.getViews({"type":"popup"})[0]
+	return chrome.extension.getViews({"type":"popup"})[0];
 }
