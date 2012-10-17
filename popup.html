@@ -8,6 +8,12 @@
         src: url('fonts/YesevaOne-Regular.ttf') format('truetype');
       }
 
+      @font-face
+      {
+        font-family: 'Lobster';
+        src: url('fonts/Lobster.otf') format('truetype');
+      }
+
       body
       {
         background: url('images/background.png');
@@ -254,6 +260,16 @@
         position: absolute;
         left: -1000%;
       }
+
+      #brand-name
+      {
+        font-size: 95%;
+        font-family: 'Lobster';
+        float: left;
+        margin-left: 10px;
+        color: #353232;
+        cursor: default;
+      }
     </style>
 
     <script src="popup.js"></script>
@@ -296,6 +312,7 @@
         </div>
       </div>
 
+      <span id="brand-name">Countdown</span>
       <input id="settings-btn" type="checkbox" />
 
     </div>
