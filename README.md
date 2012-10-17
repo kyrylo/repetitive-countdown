@@ -44,10 +44,21 @@ Settings.
 Credits
 -------
 
+  * Thanks to [Jovanny Lemonad][jovanny] for Yeseva One font;
+  * Thanks to [Pablo Impallari][impallari] for Lobster font;
+  * Thanks to [subtlepatterns.com][spcom] for some images;
+  * Thanks to guitarguy1985 for "Train Whistle" sound;
+  * Thanks to Big Daddy for "Music Box" sound.
+
 License
 -------
 
+The project uses Zlib License. See LICENSE file for more information.
+
 [logo]: http://img-fotki.yandex.ru/get/6419/98991937.e/0_88478_5b457522_orig
 [repo]: https://github.com/kyrylo/repetitive-countdown
+[jovanny]: http://www.jovanny.ru/
+[impallari]: http://www.impallari.com/
+[spcom]: http://subtlepatterns.com/
 [s1]: http://img-fotki.yandex.ru/get/6519/98991937.e/0_884fd_aa744e6c_orig
 [s2]: http://img-fotki.yandex.ru/get/6622/98991937.e/0_884fe_3455800c_orig
