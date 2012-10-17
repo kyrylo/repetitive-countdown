@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', function() {
 	settings = document.getElementById("settings");
 	settingsTimer = document.getElementById('timer-mins');
 	settingsTimeout = document.getElementById('timeout-mins');
+	tickMark = document.getElementById('tick-mark');
+	saveSettingsBtn = document.getElementById('save-settings');
 
 	// Led indicators
 	ledTimerRed = document.getElementById('led-timer');
@@ -281,6 +283,41 @@ function saveSettings()
 
 	localStorage['timer-mins'] = timerMinutes;
 	localStorage['timeout-mins'] = timeoutMinutes;
+
+	playSaveAnimation();
+}
+
+function playSaveAnimation()
+{
+	saveSettingsBtn.disabled = true;
+	var pos = -15;
+
+	var t = setInterval(function() {
+		for (i = 0; i < 9; i++)
+		{
+			pos += 1;
+			tickMark.style.left = pos + 'px';
+			if (pos == 91) {
+				clearInterval(t);
+				var w = setInterval(function() {
+					clearInterval(w);
+					var q = setInterval(function() {
+						for (j = 0; j < 9; j++)
+						{
+							pos += 1;
+							tickMark.style.left = pos + 'px';
+							if (pos == 192)
+							{
+								clearInterval(q);
+								saveSettingsBtn.disabled = false;
+							}
+						}
+					}, 10);
+				
+				}, 300);
+			}
+		}
+	}, 10);
 }
 
 /**
